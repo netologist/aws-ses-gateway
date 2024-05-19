@@ -2,10 +2,10 @@
 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Docker](https://github.com/askrella/whatsapp-chatgpt/actions/workflows/docker.yml/badge.svg)
+![Docker](https://github.com/netologist/aws-ses-gateway/actions/workflows/docker.yml/badge.svg)
 ![Docker AMD64](https://img.shields.io/badge/docker-amd64-blue)
 ![Docker ARM64](https://img.shields.io/badge/docker-arm64-green)
-![Build](https://img.shields.io/github/actions/workflow/status/netologist/aws-ses-gateway/docker.yml?branch=main)
+![Build](https://img.shields.io/github/actions/workflow/status/netologist/aws-ses-gateway/docker.yml?branch=master)
 
 
 We created this project as a new version of aws-ses-local, which doesn't seem to be maintained for a few years.
