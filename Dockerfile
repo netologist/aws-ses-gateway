@@ -1,4 +1,4 @@
-FROM golang:1.20-alpine AS Build
+FROM golang:1.22-alpine AS Build
 
 WORKDIR /usr/local/go/src/github.com/aws-ses-mock
 
@@ -11,15 +11,15 @@ COPY ./cmd ./cmd
 COPY ./internal ./internal
 COPY ./assets ./assets
 
-RUN apk add tree
-RUN tree
+# RUN apk add tree
+# RUN tree
 
 RUN go build -o ./main ./cmd/main.go
 RUN mkdir -p /build/bin && \
     mv ./main /build/bin/main && \
     mv ./assets /build/assets
 
-FROM alpine:2.6
+FROM alpine:3.19
 
 # Set our workdir to /bin since the binary expects the assets to be located under ../assets
 WORKDIR /app/bin

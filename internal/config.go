@@ -1,14 +1,16 @@
 package internal
 
 import (
-	"fmt"
+	"log"
 	"github.com/caarlos0/env/v7"
-	"os"
 )
 
 type ConfigType struct {
-	Port      int    `env:"PORT" envDefault:"8081"`
-	OutputDir string `env:"OUTPUT_DIR"`
+	Port     int    `env:"PORT" envDefault:"8081"`
+	SmtpHost string `env:"SMTP_HOST" envDefault:"localhost"`
+	SmtpPort int `env:"SMTP_PORT" envDefault:"25"`
+	SmtpUser string `env:"SMTP_USER"`
+	SmtpPass string `env:"SMTP_PASS"`
 }
 
 var Config ConfigType
@@ -16,17 +18,12 @@ var Config ConfigType
 func ReadConfigFromEnv() {
 	Config = ConfigType{}
 	if err := env.Parse(&Config); err != nil {
-		fmt.Printf("%+v\n", err)
+		log.Printf("%+v", err)
 	}
 
-	if Config.OutputDir == "" {
-		workingDir, err := os.Getwd()
-		if err != nil {
-			panic(err)
-		}
-
-		Config.OutputDir = workingDir
+	if Config.SmtpHost == "" {
+		panic("SMTP_HOST not defined")
 	}
 
-	fmt.Printf("%+v\n", Config)
+	log.Printf("%+v", Config)
 }

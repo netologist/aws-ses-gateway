@@ -1,0 +1,12 @@
+{
+    "name": "my-aws-ses-app",
+    "version": "1.0.0",
+    "description": "Node.js app for sending emails using Amazon SES",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "@aws-sdk/client-ses": "^3.577.0"
+    }
+}

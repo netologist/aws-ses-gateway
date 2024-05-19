@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ses"
+	smtpmock "github.com/mocktools/go-smtp-mock/v2"
 )
 
 var _ = Describe("SES", func() {
@@ -24,6 +25,18 @@ var _ = Describe("SES", func() {
 			go func() {
 				StartServer()
 			}()
+
+			server := smtpmock.New(smtpmock.ConfigurationAttr{
+			LogToStdout:       true,
+			LogServerActivity: true,
+			})
+		
+			// To start server use Start() method
+			if err := server.Start(); err != nil {
+				fmt.Println(err)
+			}
+			Config.SmtpHost="127.0.0.1"
+			Config.SmtpPort=server.PortNumber()
 
 			// Set up a new SES session
 			sesConfig, err := constructAWSConfiguration("http://localhost:8081")

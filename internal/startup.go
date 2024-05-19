@@ -1,14 +1,15 @@
 package internal
 
 import (
-	"fmt"
+	"log"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"io"
+	"os"
+	"strings"
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
 )
 
 type RequestBody struct {
@@ -30,17 +31,17 @@ func handler(c *gin.Context) {
 	values, _ := url.ParseQuery(bodyString)
 	reqBody = RequestBody{Action: values.Get("Action")}
 
-	fmt.Println(reqBody) // prints the decoded request
+	log.Println(reqBody) // prints the decoded request
 
 	// Build dateDir
-	dateTime := time.Now().Format("2006-01-02-15-04-05.000Z")
-	dateDir := Config.OutputDir + "/" + dateTime[:10]
-	logDir := dateDir + "/" + dateTime[11:22] + "-log"
+	// dateTime := time.Now().Format("2006-01-02-15-04-05.000Z")
+	// dateDir := Config.OutputDir + "/" + dateTime[:10]
+	// logDir := dateDir + "/" + dateTime[11:22] + "-log"
 
 	// Actions
 	switch reqBody.Action {
 	case "SendEmail":
-		mailErr := SendEmail(bodyString, c, dateDir, logDir)
+		mailErr := SendEmail(bodyString)
 
 		if mailErr != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -49,11 +50,24 @@ func handler(c *gin.Context) {
 			return
 		}
 
-		break
-	case "SendRawEmail":
-		SendRawEmail(c, dateDir, logDir)
+		successTemplate, err := os.ReadFile("../assets/templates/success.xml")
+		if err != nil {
+			logrus.Error("Cannot open template success file: ", err)
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err,
+			})
+		}
+	
+		// Replace {{message}} with absolute path of the body.html
+		successMessage := strings.Replace(string(successTemplate), "{{message}}", "Mail sent", -1)
+	
+		// Respond with the content & 200
+		c.String(http.StatusOK, successMessage)	
 
 		break
+	// case "SendRawEmail":
+	// 	SendRawEmail(c, dateDir, logDir)
+	// 	break
 	default:
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "unsupported action"})
 		return
