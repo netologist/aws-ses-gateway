@@ -6,7 +6,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"net/mail"
-	// "crypto/tls"
 	"net/smtp"
 	"net/url"
     "gopkg.in/gomail.v2"
@@ -137,49 +136,7 @@ func SendEmail(bodyString string) error {
 	}
 
 	return sendMail(request)
-
-	// Mkdir dataDir and logDir
-	// err = os.Mkdir(dataDir, 0755)
-	// if err != nil && os.IsNotExist(err) {
-	// 	return err
-	// }
-
-	// err = os.Mkdir(logDir, 0755)
-	// if err != nil && os.IsNotExist(err) {
-	// 	return err
-	// }
-
-	// // Write html data to dataDir/body.html
-	// err = writeFileContent(filepath.Join(logDir, "body.html"), []byte(request.Message.Body.Html.Data))
-	// if err != nil {
-	// 	return err
-	// }
-
-	// // Write body to dataDir/body.txt
-	// err = writeFileContent(filepath.Join(logDir, "body.txt"), []byte(request.Message.Body.Text.Data))
-	// if err != nil {
-	// 	return err
-	// }
-
-	// // Write headers to dataDir/headers.txt
-	// headers := fmt.Sprintf("Subject: %s\nTo: %s\nCc: %s\nBcc: %s\nReply-To: %s\nFrom: %s\n",
-	// 	request.Message.Subject.Data,
-	// 	strings.Join(request.Destination.ToAddresses, ","),
-	// 	strings.Join(request.Destination.CcAddresses, ","),
-	// 	strings.Join(request.Destination.BccAddresses, ","),
-	// 	strings.Join(request.ReplyToAddresses, ","),
-	// 	request.Source,
-	// )
-	// err = writeFileContent(filepath.Join(logDir, "headers.txt"), []byte(headers))
-	// if err != nil {
-	// 	return err
-	// }
-
-	// Read file from templates/success.txt
-
-	// return nil
 }
-
 
 func sendMail(req *SendEmailRequest) error {
 	m := gomail.NewMessage()
@@ -187,9 +144,15 @@ func sendMail(req *SendEmailRequest) error {
     m.SetHeader("To", strings.Join(req.Destination.ToAddresses, ","))
     m.SetHeader("Subject", req.Message.Subject.Data)
 
-	if len(strings.TrimSpace(req.Message.Body.Html.Data)) > 0 {
+	hasHtmlBody := len(strings.TrimSpace(req.Message.Body.Html.Data)) > 0 
+	hasTextBody := len(strings.TrimSpace(req.Message.Body.Text.Data)) > 0
+
+	if hasHtmlBody && hasTextBody {
 		m.SetBody("text/html", req.Message.Body.Html.Data)
-	} else {
+		m.AddAlternative("text/plain", req.Message.Body.Text.Data)
+	} else if hasHtmlBody {
+		m.SetBody("text/html", req.Message.Body.Html.Data)
+	} else if hasTextBody {
 		m.SetBody("text/plain", req.Message.Body.Text.Data)
 	}
 
@@ -203,35 +166,8 @@ func newDialer() *gomail.Dialer {
 	if Config.SmtpUser != "" && Config.SmtpPass != "" {
 		d.Auth = smtp.CRAMMD5Auth(Config.SmtpUser, Config.SmtpPass)
 	}
-	// return gomail.NewPlainDialer(Config.SmtpHost, Config.SmtpPort, Config.SmtpUser, Config.SmtpPass)
-	// d := gomail.NewDialer(Config.SmtpHost, Config.SmtpPort, Config.SmtpUser, Config.SmtpPass)
-	// d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	return d
 }
-// func sendMail(req *SendEmailRequest) error {
-// 	from := req.Source
-// 	to := strings.Join(req.Destination.ToAddresses, ",")
-// 	subject := req.Message.Subject.Data
-
-// 	msg := "From: " + from + "\n" +
-// 		"To: " + to + "\n" +
-// 		"Subject: " + subject + "\n\n" +
-// 		"----- HTML -----" + 
-// 		req.Message.Body.Html.Data +
-// 		"----- TEXT -----" + 
-// 		req.Message.Body.Text.Data
-
-// 	return  smtp.SendMail(Config.SmtpHost, smtpAuth(),
-// 		from, []string{to}, []byte(msg))
-// }
-
-// func smtpAuth() smtp.Auth {
-// 	if Config.SmtpUser == "" || Config.SmtpPass == "" {
-// 		return nil
-// 	}
-// 	return smtp.CRAMMD5Auth(Config.SmtpUser, Config.SmtpPass)
-// 	// return smtp.PlainAuth("", Config.SmtpUser, Config.SmtpPass, Config.SmtpHost)
-// }
 
 func LogValidationErrors(request *SendEmailRequest) {
 	// Check if ToAddresses is provided

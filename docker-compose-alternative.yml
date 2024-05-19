@@ -1,0 +1,31 @@
+services:
+  test-app:
+    build:
+      context: assets/aws-ses-send-mail-app
+      dockerfile: Dockerfile
+    environment:
+      AWS_SES_ENDPOINT: http://aws-ses-local:8005
+    depends_on:
+      - aws-ses-local
+      - mailhog
+  aws-ses-local:
+    build:
+      context: assets/aws-ses-local-v2-gateway-app
+      dockerfile: Dockerfile
+    ports:
+      - 8005:8005
+    environment:
+      SMTP_TRANSPORT: "{\"host\": \"mailhog\", \"port\": 1025, \"secure\": false, \"auth\": { \"user\": \"mailhog\", \"pass\": \"mailhog\"}}"
+    depends_on:
+      - mailhog
+  mailhog:
+    image: mailhog/mailhog
+    logging:
+      driver: 'none'  # disable saving logs
+    environment:
+      MH_AUTH_FILE: /mailhog.auth
+    volumes:
+      - ./assets/mailhog/auth.cfg:/mailhog.auth:ro
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui

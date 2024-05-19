@@ -33,11 +33,6 @@ func handler(c *gin.Context) {
 
 	log.Println(reqBody) // prints the decoded request
 
-	// Build dateDir
-	// dateTime := time.Now().Format("2006-01-02-15-04-05.000Z")
-	// dateDir := Config.OutputDir + "/" + dateTime[:10]
-	// logDir := dateDir + "/" + dateTime[11:22] + "-log"
-
 	// Actions
 	switch reqBody.Action {
 	case "SendEmail":
@@ -63,11 +58,8 @@ func handler(c *gin.Context) {
 	
 		// Respond with the content & 200
 		c.String(http.StatusOK, successMessage)	
-
 		break
-	// case "SendRawEmail":
-	// 	SendRawEmail(c, dateDir, logDir)
-	// 	break
+
 	default:
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "unsupported action"})
 		return

@@ -6,11 +6,16 @@ const ses = new SES({
     credentials: { accessKeyId: 'ANY_STRING', secretAccessKey: 'ANY_STRING' },
 })
 
-ses.send(new SendEmailCommand({
-    Source: 'sender@example.com',
-    Destination: { ToAddresses: ['receiver@example.com'] },
-    Message: {
-        Subject: { Data: 'This is the subject' },
-        Body: { Text: { Data: 'This is the email contents' } },
-    },
-})).then(x => console.log(x));
+setTimeout(() => {
+    ses.send(new SendEmailCommand({
+        Source: 'sender@example.com',
+        Destination: { ToAddresses: ['receiver@example.com'] },
+        Message: {
+            Subject: { Data: 'This is the subject' },
+            Body: { 
+                Text: { Data: 'This is the text email contents' },
+                Html: { Data: 'This is the <b>html</b> email contents' } 
+            },
+        },
+    })).then(x => console.log(x));    
+}, 1000)
